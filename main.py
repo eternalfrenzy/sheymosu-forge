@@ -286,5 +286,4 @@ class App(gui, gui_navigation, required_methods, gameplay_events, statistics):
 if __name__=='__main__':
     app=QApplication(sys.argv)
     ex=App()
-    app.installEventFilter(ex)
     sys.exit(app.exec_())
