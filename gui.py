@@ -16,6 +16,7 @@ class gui(QWidget):
 
         self.resources_reading()
 
+        self.setCursor(QCursor(self.enemy_3_pixmap.scaled(32, 90), 10, 15))
         
         # Main-menu screen
         
@@ -176,21 +177,21 @@ class gui(QWidget):
         
         self.enemy_1 = QPushButton(self)
         self.enemy_1.resize(50, 50)
-        self.enemy_1.setIcon(QIcon(self.ememy_1_pixmap))
+        self.enemy_1.setIcon(QIcon(self.enemy_1_pixmap))
         self.enemy_1.setIconSize(QSize(50, 50))
         self.enemy_1.setStyleSheet("border: 0px")
         self.enemy_1.move(random.randint(20, 1200), random.randint(20, 620))
 
         self.enemy_2 = QPushButton(self)
         self.enemy_2.resize(50, 50)
-        self.enemy_2.setIcon(QIcon(self.ememy_2_pixmap))
+        self.enemy_2.setIcon(QIcon(self.enemy_2_pixmap))
         self.enemy_2.setIconSize(QSize(50, 50))
         self.enemy_2.setStyleSheet("border: 0px")
         self.enemy_2.move(random.randint(20, 1200), random.randint(20, 620))
 
         self.enemy_3 = QPushButton(self)
         self.enemy_3.resize(32, 90)
-        self.enemy_3.setIcon(QIcon(self.ememy_3_pixmap))
+        self.enemy_3.setIcon(QIcon(self.enemy_3_pixmap))
         self.enemy_3.setIconSize(QSize(32, 90))
         self.enemy_3.setStyleSheet("border: 0px")
         self.enemy_3.move(random.randint(20, 1200), random.randint(20, 550))

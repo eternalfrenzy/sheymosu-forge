@@ -33,14 +33,14 @@ class required_methods(object):
             self.blackScreen_pixmap = QPixmap()
             self.blackScreen_pixmap.loadFromData(self.resources["blackScreen"])
 
-            self.ememy_1_pixmap = QPixmap()
-            self.ememy_1_pixmap.loadFromData(self.resources["enemies"][0])
+            self.enemy_1_pixmap = QPixmap()
+            self.enemy_1_pixmap.loadFromData(self.resources["enemies"][0])
 
-            self.ememy_2_pixmap = QPixmap()
-            self.ememy_2_pixmap.loadFromData(self.resources["enemies"][1])
+            self.enemy_2_pixmap = QPixmap()
+            self.enemy_2_pixmap.loadFromData(self.resources["enemies"][1])
 
-            self.ememy_3_pixmap = QPixmap()
-            self.ememy_3_pixmap.loadFromData(self.resources["enemies"][2])
+            self.enemy_3_pixmap = QPixmap()
+            self.enemy_3_pixmap.loadFromData(self.resources["enemies"][2])
 
             self.pause_background_pixmap = QPixmap()
             self.pause_background_pixmap.loadFromData(self.resources["pause_background"])
