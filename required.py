@@ -23,7 +23,7 @@ class required_methods(object):
                 self.resources = pickle.loads(file.read())
             
             # Converting the resources
-            self.mainMenu_gif_bytesArray = QByteArray(self.resources["mainMenu"])
+            '''self.mainMenu_gif_bytesArray = QByteArray(self.resources["mainMenu"])
             self.mainMenu_gif = QBuffer(self.mainMenu_gif_bytesArray)
             self.mainMenu_gif.open(QIODevice.ReadOnly)
 
@@ -46,10 +46,10 @@ class required_methods(object):
             self.pause_background_pixmap.loadFromData(self.resources["pause_background"])
 
             self.random_gameplayBackground_pixmap = QPixmap()
-            self.random_gameplayBackground_pixmap.loadFromData(self.resources["backgrounds"][random.randint(0,16)])        
+            self.random_gameplayBackground_pixmap.loadFromData(self.resources["backgrounds"][random.randint(0,16)])
 
             self.pause_title_pixmap = QPixmap()
-            self.pause_title_pixmap.loadFromData(self.resources["pause_title"])
+            self.pause_title_pixmap.loadFromData(self.resources["pause_title"])'''
 
             fontDB = QFontDatabase() # Font-database for displying the font in game.
             fontDB.addApplicationFontFromData(self.resources["font"])
@@ -58,6 +58,26 @@ class required_methods(object):
             with open("error_log.txt", "w") as log_file: # If an error occurred then game will be closed.
                 log_file.write("File 'data.bin' is damaged :(" + "\n\n" + "Details:" + "\n" + str(error))
             sys.exit()
+
+    def load_img(self, data, other_data = None):
+        img = QPixmap()
+
+        if other_data == None:
+            img.loadFromData(self.resources[data])
+        else:
+            img.loadFromData(self.resources[data][other_data])
+        
+        return img
+
+    #def load_gif(self, data, other_data = None):
+    #    if other_data == None:
+    #        self.bytesArray = QByteArray(self.resources[data])
+    #    else:
+    #        self.bytesArray = QByteArray(self.resources[data][other_data])
+    #    
+    #    self.gif = QBuffer(self.bytesArray)
+    #    self.gif.open(QIODevice.ReadOnly)
+    #    return self.gif
 
     """Reading the file with saves."""
     def saves_reading(self):

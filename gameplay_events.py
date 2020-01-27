@@ -96,9 +96,9 @@ class gameplay_events():
     def backgroundTimeOut(self):
         self.backgroundTime = round(self.backgroundTime + 0.1, 1)
         if self.backgroundTime >= 2:
-            self.gameplay_background_pixmap = QPixmap()
-            self.gameplay_background_pixmap.loadFromData(self.resources["backgrounds"][random.randint(0, 16)])
-            self.gameplay_background.setPixmap(self.gameplay_background_pixmap)
+            self.gameplay_background.setPixmap(
+                self.load_img("backgrounds", random.randint(0,16))
+            )
             self.backgroundTime = 0
 
     """Counting the time in gameplay"""
