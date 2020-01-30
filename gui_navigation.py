@@ -11,7 +11,7 @@ class gui_navigation():
         self.show_mainMenu()
 
         self.mainMenu_background.show()
-        self.mainMenuScreen.show()
+        self.mainMenuScreen_background.show()
         self.mainMenu_logo.show()
         self.gameVersion_lbl.show()
 
@@ -20,7 +20,7 @@ class gui_navigation():
     """Close Main-menu Screen"""
     def close_mainMenuScreen(self):
         self.mainMenu_background.hide()
-        self.mainMenuScreen.hide()
+        self.mainMenuScreen_background.hide()
         self.mainMenu_logo.hide()
         self.gameVersion_lbl.hide()
 
@@ -98,7 +98,7 @@ class gui_navigation():
         self.return_btn.hide()
 
     """Show menu for changing the save"""
-    def show_renameSaveMenu(self):
+    def show_changeSave_menu(self):
         self.savesList_edit.hide()
         self.continueSave_btn.hide()
         self.changeSave_btn.hide()
@@ -111,7 +111,7 @@ class gui_navigation():
         self.cancel_btn.show()
 
     """Hide menu for changing the save"""
-    def hide_renameSaveMenu(self):
+    def hide_changeSave_menu(self):
         self.saveName_lbl.hide()
         self.saveName_edit.hide()
         self.saveUpdatedSave_btn.hide()

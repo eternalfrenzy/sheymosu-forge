@@ -74,7 +74,7 @@ class gameplay_events():
     of enemies and their movements"""
 
     def enemyTick_1(self):
-        self.enemyTime_1 = round(self.enemyTime_1 + 0.1, 1)
+        self.enemyTime_1 = round(self.enemyTime_1 + 0.1, 1) # Rounding the time
         if self.enemyTime_1 >= self.enemyTimeout_1:
             self.enemy_1.move(random.randint(20, 1200), random.randint(20, 550))
             self.enemyTime_1 = 0
