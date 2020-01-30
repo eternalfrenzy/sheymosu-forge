@@ -1,6 +1,6 @@
 
 __author__  = "RinkLinky"
-__version__ = "Alpha 0.3.1"
+__version__ = "Alpha 0.4.0"
 
 from required import *
 from gui import gui
@@ -8,41 +8,46 @@ from gameplay_events import gameplay_events
 from gui_navigation import gui_navigation
 from statistics import statistics
 
-class App(gui, gui_navigation, required_methods, gameplay_events, statistics):
+class App(gui, gui_navigation, gameplay_events, statistics, required_methods):
+    
     """Initialization the game"""
     def __init__(self):
         super().__init__()
+        self.extract_resources()
         self.get_gui()
         self.apply_pallete(app)
         self.create_eventTimers()
 
-        self.show()        
+        self.show()
         self.open_mainMenuScreen()
         self.close_pauseScreen()
         self.close_gameplayScreen()
 
-        self.saves_reading()
-        self.saves_filling()
+        self.read_saves()
+        self.fill_with_saves()
 
-        # Creating the signals
+        
+        """PyQt-signals connecting"""
+        
+        # Main-menu
         self.newGame_btn.clicked.connect(self.show_newGameMenu)
         self.continueGame_btn.clicked.connect(self.show_continueGameMenu)
         self.settings_btn.clicked.connect(self.show_settingsMenu)
         self.exit_btn.clicked.connect(sys.exit)
         self.return_btn.clicked.connect(self.show_mainMenu)
-
+        # New-save menu
         self.newSave_btn.clicked.connect(self.newGame)
         self.gameModeChange_btn.clicked.connect(self.gameMode_selection)
         self.difficultyChange_btn.clicked.connect(self.difficulty_selection)
-
+        # Continue-saves menu
         self.savesList_edit.itemDoubleClicked.connect(self.continueSave)
         self.continueSave_btn.clicked.connect(self.continueSave)
         self.changeSave_btn.clicked.connect(self.changeSave)
         self.deleteSave_btn.clicked.connect(self.deleteSave)
-
+        # Save changing menu
         self.saveUpdatedSave_btn.clicked.connect(self.saveUpdatedSave)
-        self.cancel_btn.clicked.connect(self.hide_renameSaveMenu)
-
+        self.cancel_btn.clicked.connect(self.hide_changeSave_menu)
+        # Pause menu
         self.returnToGameplay_btn.clicked.connect(self.returnToGameplay)
         self.exitToMainMenu_btn.clicked.connect(self.finishGame)
 
@@ -73,7 +78,7 @@ class App(gui, gui_navigation, required_methods, gameplay_events, statistics):
         with open("saves.sav", "wb") as file: # Saving the new list with saves
             pickle.dump(self.saves, file)
 
-        self.saves_filling() # Filling the QListWidget with saves
+        self.fill_with_saves() # Filling the QListWidget with saves
 
         self.saveName = saveName
         self.score = 0
@@ -118,7 +123,7 @@ class App(gui, gui_navigation, required_methods, gameplay_events, statistics):
     def startGame(self):
         self.close_mainMenuScreen()
 
-        self.score_lbl.setText(str("Счёт: " + str(self.score)))
+        self.score_lbl.setText(f"Счёт: {self.score}")
         self.open_gameplayScreen()
     
     """Finishing the gameplay"""
@@ -156,16 +161,17 @@ class App(gui, gui_navigation, required_methods, gameplay_events, statistics):
         with open("saves.sav", "wb") as file:
             pickle.dump(self.saves, file)
         
-        self.saves_filling()
+        self.fill_with_saves()
         self.open_mainMenuScreen()
 
+    
     """Changing the 
     selected save by player"""
     def changeSave(self):
         self.selectedSave_id = self.savesList_edit.currentRow()
         if self.selectedSave_id != -1: # Index (-1) means that save not selected by player
             self.saveName_edit.setText(self.saves[self.selectedSave_id]["name"])
-            self.show_renameSaveMenu()
+            self.show_changeSave_menu()
 
     """Saving of changes
     for selected save by player"""
@@ -173,14 +179,14 @@ class App(gui, gui_navigation, required_methods, gameplay_events, statistics):
         if self.saveName_edit.text().strip() == "": # If new name not empty after clearning the spaces on sides - save will be updated.
             self.saveName_edit.clear()
         else:
-            self.hide_renameSaveMenu()
+            self.hide_changeSave_menu()
 
             if self.saveName_edit.text().strip() != self.saves[self.selectedSave_id]["name"]: # Updating the save in list
                 self.saves[self.selectedSave_id]["name"] = self.saveName_edit.text().strip()
                 with open("saves.sav", "wb") as file:
                     pickle.dump(self.saves, file)
             
-                self.saves_filling()
+                self.fill_with_saves()
 
     """Deleting the 
     selected save by player"""
@@ -191,7 +197,7 @@ class App(gui, gui_navigation, required_methods, gameplay_events, statistics):
             with open("saves.sav", "wb") as file:
                 pickle.dump(self.saves, file)
 
-            self.saves_filling()
+            self.fill_with_saves()
 
 
     """Open/Close pause screen"""
@@ -210,6 +216,7 @@ class App(gui, gui_navigation, required_methods, gameplay_events, statistics):
         self.close_pauseScreen()
         self.open_gameplayScreen()
 
+    
     """Selection of gamemode for save"""
     def gameMode_selection(self):
         pass
@@ -228,31 +235,6 @@ class App(gui, gui_navigation, required_methods, gameplay_events, statistics):
             self.difficulty = 1
             self.difficultyChange_btn.setText("Легко")
 
-    
-    """Filling the QListWidget with saves"""
-    def saves_filling(self):
-        self.savesList_edit.clear()
-
-        for save in self.saves: # Text formating for displying information of save in QListWidget
-            if save["gamemode"] == 1:
-                gamemode = "Бесконечный режим"
-            
-            if save["difficulty"] == 1:
-                difficulty = "Легко"
-            elif save["difficulty"] == 2:
-                difficulty = "Нормально"
-            elif save["difficulty"] == 3:
-                difficulty = "Сложно"
-
-            newItem = save["name"] + "\n" + difficulty + " / " + "Счёт: " + str(save["score"])
-
-            self.savesList_edit.addItem(newItem)
-
-        if self.savesList_edit.count() == 0:
-            self.continueGame_btn.setEnabled(False)
-        else:
-            self.continueGame_btn.setEnabled(True)
-
     """Applying gameplay changes
     for current difficulty"""
     def apply_difficulty(self, difficulty):
@@ -263,7 +245,7 @@ class App(gui, gui_navigation, required_methods, gameplay_events, statistics):
 
             self.enemyScore_1 = 2
             self.enemyScore_2 = 5
-            self.enemyScore_3 = 7
+            self.enemyScore_3 = 10
 
         elif difficulty == 2:
             self.enemyTimeout_1 = 4
@@ -279,11 +261,36 @@ class App(gui, gui_navigation, required_methods, gameplay_events, statistics):
             self.enemyTimeout_2 = 1
             self.enemyTimeout_3 = 0.7
 
-            self.enemyScore_1 = 8
-            self.enemyScore_2 = 18
-            self.enemyScore_3 = 25
+            self.enemyScore_1 = 10
+            self.enemyScore_2 = 15
+            self.enemyScore_3 = 20
 
-if __name__=='__main__':
-    app=QApplication(sys.argv)
-    ex=App()
+    
+    """Filling the QListWidget with saves"""
+    def fill_with_saves(self):
+        self.savesList_edit.clear()
+
+        for save in self.saves: # Text formating for displying information of save in QListWidget
+            if save["gamemode"] == 1:
+                gamemode = "Бесконечный режим"
+            
+            if save["difficulty"] == 1:
+                difficulty = "Легко"
+            elif save["difficulty"] == 2:
+                difficulty = "Нормально"
+            elif save["difficulty"] == 3:
+                difficulty = "Сложно"
+
+            newItem = f"{save['name']}\n{difficulty} / Счёт: {save['score']}"
+
+            self.savesList_edit.addItem(newItem)
+
+        if self.savesList_edit.count() == 0:
+            self.continueGame_btn.setEnabled(False)
+        else:
+            self.continueGame_btn.setEnabled(True)
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = App()
     sys.exit(app.exec_())

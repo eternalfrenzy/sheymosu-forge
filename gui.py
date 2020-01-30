@@ -12,28 +12,30 @@ class gui(QWidget):
         self.setWindowTitle("SheymOsu Alpha")
         self.setWindowIcon(QIcon("icon.ico"))
 
+        # CSS-style for yellow borders on button by hovering over some buttons
         self.setStyleSheet("QPushButton:hover:!pressed{border: 1px solid yellow}")
 
-        self.resources_reading()
-
-        self.setCursor(QCursor(self.enemy_3_pixmap.scaled(32, 90), 10, 15))
+        # Custom cursor in game
+        cursor = self.load_img("enemies", 2)
+        #self.setCursor(QCursor(cursor.scaled(32, 90), 10, 15))
+        
         
         # Main-menu screen
         
-        self.mainMenuScreen = QLabel(self)
-        self.mainMenuScreen_gif = QMovie(self.mainMenu_gif, b'GIF')
-        self.mainMenuScreen.setMovie(self.mainMenuScreen_gif)
-        self.mainMenuScreen_gif.start()
+        self.mainMenuScreen_background = QLabel(self)
+        self.mainMenuScreen_background_gif = QMovie(self.mainMenuScreen_background_gif_data, b"GIF")
+        self.mainMenuScreen_background.setMovie(self.mainMenuScreen_background_gif)
+        self.mainMenuScreen_background_gif.start()
 
         self.mainMenu_background = QLabel(self)
-        self.mainMenu_background.setPixmap(self.blackScreen_pixmap)
+        self.mainMenu_background.setPixmap(self.load_img("blackScreen"))
         self.mainMenu_background.resize(250, 720)
 
         self.mainMenu_logo = QLabel(self)
-        self.mainMenu_logo.setPixmap(self.logo_pixmap)
+        self.mainMenu_logo.setPixmap(self.load_img("logo"))
         self.mainMenu_logo.move(0, 125)
 
-        self.gameVersion_lbl = QLabel("Alpha 0.3.1", self)
+        self.gameVersion_lbl = QLabel("Alpha 0.4.0", self)
         self.gameVersion_lbl.move(14, 685)
         self.gameVersion_lbl.setFont(QFont(self.font, 20))
 
@@ -41,7 +43,7 @@ class gui(QWidget):
         self.newGame_btn.resize(220, 40)
         self.newGame_btn.move(14, 400)
         self.newGame_btn.setFont(QFont(self.font, 25))
-        self.newGame_btn.setFocusPolicy(Qt.NoFocus)
+        self.newGame_btn.setFocusPolicy(Qt.NoFocus) # Disabling the keyboard navigation
 
         self.continueGame_btn = QPushButton("Продолжить",self)
         self.continueGame_btn.resize(220, 40)
@@ -73,12 +75,12 @@ class gui(QWidget):
         self.saveName_edit.setFont(QFont(self.font, 14))
         self.saveName_edit.setMaxLength(20)
         self.saveName_edit.setStyleSheet("border: 1px solid black")
-        self.saveName_edit.setContextMenuPolicy(Qt.NoContextMenu)
+        self.saveName_edit.setContextMenuPolicy(Qt.NoContextMenu) # Disabling the context menu on QLineEdit
 
         self.gameModeChange_btn = QPushButton("Бесконечный режим",self)
         self.gameModeChange_btn.resize(170, 25)
         self.gameModeChange_btn.move(40, 400)
-        self.gameModeChange_btn.setStyleSheet("QPushButton:hover:!pressed{border: 1px solid red}")
+        self.gameModeChange_btn.setStyleSheet("QPushButton:hover:!pressed{border: 1px solid red}") # CSS-style for red borders on button by hovering over the button
         self.gameModeChange_btn.setFont(QFont(self.font, 15))
         self.gameModeChange_btn.setFocusPolicy(Qt.NoFocus)
 
@@ -160,11 +162,11 @@ class gui(QWidget):
         # Gameplay screen
         
         self.gameplay_background = QLabel(self)
-        self.gameplay_background.setPixmap(self.random_gameplayBackground_pixmap)
+        self.gameplay_background.setPixmap(self.load_img("backgrounds", random.randint(0,16)))
         self.gameplay_background.move(0, -50)
 
         self.gameplayInfo_background = QLabel(self)
-        self.gameplayInfo_background.setPixmap(self.blackScreen_pixmap)
+        self.gameplayInfo_background.setPixmap(self.load_img("blackScreen"))
         self.gameplayInfo_background.resize(1280, 50)
         self.gameplayInfo_background.move(0, 670)
 
@@ -177,21 +179,21 @@ class gui(QWidget):
         
         self.enemy_1 = QPushButton(self)
         self.enemy_1.resize(50, 50)
-        self.enemy_1.setIcon(QIcon(self.enemy_1_pixmap))
+        self.enemy_1.setIcon(QIcon(self.load_img("enemies", 0)))
         self.enemy_1.setIconSize(QSize(50, 50))
         self.enemy_1.setStyleSheet("border: 0px")
         self.enemy_1.move(random.randint(20, 1200), random.randint(20, 620))
 
         self.enemy_2 = QPushButton(self)
         self.enemy_2.resize(50, 50)
-        self.enemy_2.setIcon(QIcon(self.enemy_2_pixmap))
+        self.enemy_2.setIcon(QIcon(self.load_img("enemies", 1)))
         self.enemy_2.setIconSize(QSize(50, 50))
         self.enemy_2.setStyleSheet("border: 0px")
         self.enemy_2.move(random.randint(20, 1200), random.randint(20, 620))
 
         self.enemy_3 = QPushButton(self)
         self.enemy_3.resize(32, 90)
-        self.enemy_3.setIcon(QIcon(self.enemy_3_pixmap))
+        self.enemy_3.setIcon(QIcon(self.load_img("enemies", 2)))
         self.enemy_3.setIconSize(QSize(32, 90))
         self.enemy_3.setStyleSheet("border: 0px")
         self.enemy_3.move(random.randint(20, 1200), random.randint(20, 550))
@@ -199,16 +201,16 @@ class gui(QWidget):
         # Pause-menu screen
         
         self.pause_background = QLabel(self)
-        self.pause_background.setPixmap(self.pause_background_pixmap)
+        self.pause_background.setPixmap(self.load_img("pause_background"))
         self.pause_background.resize(1280, 720)
 
         self.pauseMenu_background = QLabel(self)
-        self.pauseMenu_background.setPixmap(self.blackScreen_pixmap)
+        self.pauseMenu_background.setPixmap(self.load_img("blackScreen"))
         self.pauseMenu_background.resize(250, 720)
         self.pauseMenu_background.move(1030, 0)
 
         self.pauseMenu_title = QLabel(self)
-        self.pauseMenu_title.setPixmap(self.pause_title_pixmap)
+        self.pauseMenu_title.setPixmap(self.load_img("pause_title"))
         self.pauseMenu_title.move(1030, 150)
 
         self.returnToGameplay_btn = QPushButton("Продолжить", self)
