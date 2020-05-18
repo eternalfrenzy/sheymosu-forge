@@ -1,233 +1,474 @@
+import random
 
-from required import *
+from PyQt5 import QtWidgets, QtGui, QtCore
 
-"""Class for creating the GUI"""
-class gui(QWidget):
-    
-    """Initialization the GUI"""
-    def get_gui(self):
-        self.setMinimumSize(QSize(1280,720))
-        self.setMaximumSize(QSize(1280,720))
+def load_pixmap(data):
+    """Convert image data to PyQt-friendly format"""
+    pixmap = QtGui.QPixmap()
+    pixmap.loadFromData(data)
 
-        self.setWindowTitle("SheymOsu Alpha")
-        self.setWindowIcon(QIcon("icon.ico"))
+    return pixmap
 
-        # CSS-style for yellow borders on button by hovering over some buttons
-        self.setStyleSheet("QPushButton:hover:!pressed{border: 1px solid yellow}")
+class Gui(QtWidgets.QWidget):
+    """Class for game GUI and PyQt events"""
 
-        # Custom cursor in game
-        cursor = self.load_img("enemies", 2)
-        #self.setCursor(QCursor(cursor.scaled(32, 90), 10, 15))
-        
-        
-        # Main-menu screen
-        
-        self.mainMenuScreen_background = QLabel(self)
-        self.mainMenuScreen_background_gif = QMovie(self.mainMenuScreen_background_gif_data, b"GIF")
-        self.mainMenuScreen_background.setMovie(self.mainMenuScreen_background_gif)
-        self.mainMenuScreen_background_gif.start()
+    def __init__(self, resources):
+        super().__init__()
 
-        self.mainMenu_background = QLabel(self)
-        self.mainMenu_background.setPixmap(self.load_img("blackScreen"))
-        self.mainMenu_background.resize(250, 720)
+        self.setMinimumSize(QtCore.QSize(1280, 720))
+        self.setMaximumSize(QtCore.QSize(1280, 720))
 
-        self.mainMenu_logo = QLabel(self)
-        self.mainMenu_logo.setPixmap(self.load_img("logo"))
-        self.mainMenu_logo.move(0, 125)
+        self.setWindowTitle('SheymOsu')
+        self.setWindowIcon(QtGui.QIcon('icon.ico'))
 
-        self.gameVersion_lbl = QLabel("Alpha 0.4.0", self)
+        # the buttons will have CSS-styled yellow borders when hovered over
+        self.setStyleSheet('QPushButton:hover:!pressed{border: 1px solid yellow}')
+
+        FONTS_DB = QtGui.QFontDatabase() # font-database for fonts from game-resources
+        FONTS_DB.addApplicationFontFromData(resources['FONTS']['DETERMINATION_2'])
+        FONT1 = FONTS_DB.applicationFontFamilies(0)[0] # "determination 2" font
+
+        if random.randint(0, 9999) == 666: # easter egg :D
+            GIF1_DATA = resources['BACKGROUNDS']['CLOSE_EVENT']
+        else:
+            GIF1_DATA = resources['BACKGROUNDS']['START_SCREEN']
+
+        # converting the gif data to PyQt-friendly format
+        self.GIF1_DATA_BYTEARRAY = QtCore.QByteArray(GIF1_DATA)
+        self.GIF1_DATA_BUFFER = QtCore.QBuffer(self.GIF1_DATA_BYTEARRAY)
+        self.GIF1_DATA_BUFFER.open(QtCore.QIODevice.ReadOnly)
+
+        # START-SCREEN #
+
+        self.startScreen_background = QtWidgets.QLabel(self)
+        self.startScreen_background_gif = QtGui.QMovie(self.GIF1_DATA_BUFFER, b'GIF')
+        self.startScreen_background.setMovie(self.startScreen_background_gif)
+        self.startScreen_background_gif.start()
+
+        self.startScreen_menu_background = QtWidgets.QLabel(self)
+        self.startScreen_menu_background.setStyleSheet('background-color: black')
+        self.startScreen_menu_background.resize(250, 720)
+
+        self.startScreen_menu_logo = QtWidgets.QLabel(self)
+        self.startScreen_menu_logo.setPixmap(load_pixmap(resources['LOGO']))
+        self.startScreen_menu_logo.move(0, 125)
+
+        self.gameVersion_lbl = QtWidgets.QLabel(self)
+        self.gameVersion_lbl.resize(225, 20)
         self.gameVersion_lbl.move(14, 685)
-        self.gameVersion_lbl.setFont(QFont(self.font, 20))
+        self.gameVersion_lbl.setFont(QtGui.QFont(FONT1, 20))
 
-        self.newGame_btn = QPushButton("Новая игра",self)
+        self.newGame_btn = QtWidgets.QPushButton(self)
         self.newGame_btn.resize(220, 40)
         self.newGame_btn.move(14, 400)
-        self.newGame_btn.setFont(QFont(self.font, 25))
-        self.newGame_btn.setFocusPolicy(Qt.NoFocus) # Disabling the keyboard navigation
+        self.newGame_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.newGame_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.continueGame_btn = QPushButton("Продолжить",self)
+        self.continueGame_btn = QtWidgets.QPushButton(self)
         self.continueGame_btn.resize(220, 40)
         self.continueGame_btn.move(14, 350)
-        self.continueGame_btn.setFont(QFont(self.font, 25))
-        self.continueGame_btn.setFocusPolicy(Qt.NoFocus)
+        self.continueGame_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.continueGame_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.settings_btn = QPushButton("Настройки",self)
+        self.settings_btn = QtWidgets.QPushButton(self)
         self.settings_btn.resize(220, 40)
         self.settings_btn.move(14, 450)
-        self.settings_btn.setFont(QFont(self.font, 25))
-        self.settings_btn.setFocusPolicy(Qt.NoFocus)
+        self.settings_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.settings_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.exit_btn = QPushButton("Выйти",self)
-        self.exit_btn.resize(220, 40)
-        self.exit_btn.move(14, 500)
-        self.exit_btn.setFont(QFont(self.font, 25))
-        self.exit_btn.setFocusPolicy(Qt.NoFocus)
+        self.quitGame_btn = QtWidgets.QPushButton(self)
+        self.quitGame_btn.resize(220, 40)
+        self.quitGame_btn.move(14, 500)
+        self.quitGame_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.quitGame_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        # Menu for creating new save
-        
-        self.saveName_lbl = QLabel("Название сохранения",self)
-        self.saveName_lbl.setFont(QFont(self.font, 15))
-        self.saveName_lbl.move(41, 350)
+        self.aboutGame_btn = QtWidgets.QPushButton(self)
+        self.aboutGame_btn.resize(220, 100)
+        self.aboutGame_btn.move(14, 145)
+        self.aboutGame_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.aboutGame_btn.setStyleSheet('border: 0px')
+        self.aboutGame_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.saveName_edit = QLineEdit(self)
+        # BUTTON FOR BACK START-SCREEN MENU #
+        self.back_startScreen_menu_btn = QtWidgets.QPushButton(self)
+        self.back_startScreen_menu_btn.resize(220, 40)
+        self.back_startScreen_menu_btn.move(14, 550)
+        self.back_startScreen_menu_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.back_startScreen_menu_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        # NEW-GAME MENU #
+
+        self.saveName_lbl = QtWidgets.QLabel(self)
+        self.saveName_lbl.resize(190, 15)
+        self.saveName_lbl.move(30, 350)
+        self.saveName_lbl.setFont(QtGui.QFont(FONT1, 15))
+        self.saveName_lbl.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.saveName_edit = QtWidgets.QLineEdit(self)
         self.saveName_edit.resize(190, 25)
         self.saveName_edit.move(30, 370)
-        self.saveName_edit.setFont(QFont(self.font, 14))
-        self.saveName_edit.setMaxLength(20)
-        self.saveName_edit.setStyleSheet("border: 1px solid black")
-        self.saveName_edit.setContextMenuPolicy(Qt.NoContextMenu) # Disabling the context menu on QLineEdit
+        self.saveName_edit.setMaxLength(32)
+        self.saveName_edit.setFont(QtGui.QFont(FONT1, 14))
+        self.saveName_edit.setStyleSheet('border: 1px solid black')
+        self.saveName_edit.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
 
-        self.gameModeChange_btn = QPushButton("Бесконечный режим",self)
-        self.gameModeChange_btn.resize(170, 25)
-        self.gameModeChange_btn.move(40, 400)
-        self.gameModeChange_btn.setStyleSheet("QPushButton:hover:!pressed{border: 1px solid red}") # CSS-style for red borders on button by hovering over the button
-        self.gameModeChange_btn.setFont(QFont(self.font, 15))
-        self.gameModeChange_btn.setFocusPolicy(Qt.NoFocus)
+        self.change_gamemode_btn = QtWidgets.QPushButton(self)
+        self.change_gamemode_btn.resize(170, 25)
+        self.change_gamemode_btn.move(40, 400)
+        self.change_gamemode_btn.setFont(QtGui.QFont(FONT1, 15))
+        self.change_gamemode_btn.setStyleSheet('QPushButton:hover:!pressed{border: 1px solid red}')
+        self.change_gamemode_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.difficulty_lbl = QLabel("Сложность игры",self)
-        self.difficulty_lbl.setFont(QFont(self.font, 15))
-        self.difficulty_lbl.move(60, 438)
+        self.difficulty_lbl = QtWidgets.QLabel(self)
+        self.difficulty_lbl.resize(190, 18)
+        self.difficulty_lbl.move(30, 438)
+        self.difficulty_lbl.setFont(QtGui.QFont(FONT1, 15))
+        self.difficulty_lbl.setAlignment(QtCore.Qt.AlignCenter)
 
-        self.difficultyChange_btn = QPushButton("Сложность",self)
-        self.difficultyChange_btn.resize(135, 25)
-        self.difficultyChange_btn.move(56, 460)
-        self.difficultyChange_btn.setStyleSheet("QPushButton:hover:!pressed{border: 1px solid red}")
-        self.difficultyChange_btn.setFont(QFont(self.font, 15))
-        self.difficultyChange_btn.setFocusPolicy(Qt.NoFocus)
+        self.change_difficulty_btn = QtWidgets.QPushButton(self)
+        self.change_difficulty_btn.resize(135, 25)
+        self.change_difficulty_btn.move(56, 460)
+        self.change_difficulty_btn.setFont(QtGui.QFont(FONT1, 15))
+        self.change_difficulty_btn.setStyleSheet('QPushButton:hover:!pressed{border: 1px solid red}')
+        self.change_difficulty_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.newSave_btn = QPushButton("Создать",self)
-        self.newSave_btn.resize(220, 40)
-        self.newSave_btn.move(14, 500)
-        self.newSave_btn.setFont(QFont(self.font, 25))
-        self.newSave_btn.setFocusPolicy(Qt.NoFocus)
+        self.create_save_btn = QtWidgets.QPushButton(self)
+        self.create_save_btn.resize(220, 40)
+        self.create_save_btn.move(14, 500)
+        self.create_save_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.create_save_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        # Continue-game-menu
-        
-        self.savesList_edit = QListWidget(self)
+        # CONTINUE-GAME MENU #
+
+        self.savesList_edit = QtWidgets.QListWidget(self)
         self.savesList_edit.resize(220, 130)
         self.savesList_edit.move(14, 350)
-        self.savesList_edit.setFont(QFont(self.font, 15))
+        self.savesList_edit.setFont(QtGui.QFont(FONT1, 15))
+        self.savesList_edit.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.continueSave_btn = QPushButton("Запустить",self)
-        self.continueSave_btn.resize(220, 25)
-        self.continueSave_btn.move(14, 485)
-        self.continueSave_btn.setFont(QFont(self.font, 13))
-        self.continueSave_btn.setStyleSheet("QPushButton:hover:!pressed{border: 1px solid red}")
-        self.continueSave_btn.setFocusPolicy(Qt.NoFocus)
+        self.continue_save_btn = QtWidgets.QPushButton(self)
+        self.continue_save_btn.resize(220, 25)
+        self.continue_save_btn.move(14, 485)
+        self.continue_save_btn.setFont(QtGui.QFont(FONT1, 13))
+        self.continue_save_btn.setStyleSheet('QPushButton:hover:!pressed{border: 1px solid red}')
+        self.continue_save_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.changeSave_btn = QPushButton("Изменить",self)
-        self.changeSave_btn.resize(109, 25)
-        self.changeSave_btn.move(14, 512)
-        self.changeSave_btn.setFont(QFont(self.font, 13))
-        self.changeSave_btn.setStyleSheet("QPushButton:hover:!pressed{border: 1px solid red}")
-        self.changeSave_btn.setFocusPolicy(Qt.NoFocus)
+        self.change_save_btn = QtWidgets.QPushButton(self)
+        self.change_save_btn.resize(109, 25)
+        self.change_save_btn.move(14, 512)
+        self.change_save_btn.setFont(QtGui.QFont(FONT1, 13))
+        self.change_save_btn.setStyleSheet('QPushButton:hover:!pressed{border: 1px solid red}')
+        self.change_save_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.deleteSave_btn = QPushButton("Удалить",self)
-        self.deleteSave_btn.resize(109, 25)
-        self.deleteSave_btn.move(126, 512)
-        self.deleteSave_btn.setFont(QFont(self.font, 13))
-        self.deleteSave_btn.setStyleSheet("QPushButton:hover:!pressed{border: 1px solid red}")
-        self.deleteSave_btn.setFocusPolicy(Qt.NoFocus)
+        self.delete_save_btn = QtWidgets.QPushButton(self)
+        self.delete_save_btn.resize(109, 25)
+        self.delete_save_btn.move(126, 512)
+        self.delete_save_btn.setFont(QtGui.QFont(FONT1, 13))
+        self.delete_save_btn.setStyleSheet('QPushButton:hover:!pressed{border: 1px solid red}')
+        self.delete_save_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        # Menu for changing the save
-        
-        self.saveUpdatedSave_btn = QPushButton("Изменить", self)
-        self.saveUpdatedSave_btn.resize(220, 40)
-        self.saveUpdatedSave_btn.move(14, 450)
-        self.saveUpdatedSave_btn.setFont(QFont(self.font, 25))
-        self.saveUpdatedSave_btn.setFocusPolicy(Qt.NoFocus)
-        self.saveUpdatedSave_btn.hide()
+        # CHANGE-SAVE MENU #
 
-        self.cancel_btn = QPushButton("Отмена", self)
+        self.save_changedSave_btn = QtWidgets.QPushButton(self)
+        self.save_changedSave_btn.resize(220, 40)
+        self.save_changedSave_btn.move(14, 450)
+        self.save_changedSave_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.save_changedSave_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.save_changedSave_btn.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
+
+        self.cancel_btn = QtWidgets.QPushButton(self)
         self.cancel_btn.resize(220, 40)
         self.cancel_btn.move(14, 500)
-        self.cancel_btn.setFont(QFont(self.font, 25))
-        self.cancel_btn.setFocusPolicy(Qt.NoFocus)
-        self.cancel_btn.hide()
+        self.cancel_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.cancel_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        # Settings-menu
-        
-        self.settings_lbl = QLabel("Здесь пока что\nничего нет :(", self)
-        self.settings_lbl.setFont(QFont(self.font, 25))
-        self.settings_lbl.move(30, 400)
+        # DELETE-SAVE MENU #
 
-        # Button for return the previous menu
-        self.return_btn = QPushButton("Назад",self)
-        self.return_btn.resize(220, 40)
-        self.return_btn.move(14, 550)
-        self.return_btn.setFont(QFont(self.font, 25))
-        self.return_btn.setFocusPolicy(Qt.NoFocus)
+        self.deleteSave_warning_lbl = QtWidgets.QLabel(self)
+        self.deleteSave_warning_lbl.resize(220, 80)
+        self.deleteSave_warning_lbl.move(14, 350)
+        self.deleteSave_warning_lbl.setFont(QtGui.QFont(FONT1, 15))
+        self.deleteSave_warning_lbl.setAlignment(QtCore.Qt.AlignCenter)
 
-        
-        # Gameplay screen
-        
-        self.gameplay_background = QLabel(self)
-        self.gameplay_background.setPixmap(self.load_img("backgrounds", random.randint(0,16)))
+        self.confirm_deleteSave_btn = QtWidgets.QPushButton(self)
+        self.confirm_deleteSave_btn.resize(220, 40)
+        self.confirm_deleteSave_btn.move(14, 450)
+        self.confirm_deleteSave_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.confirm_deleteSave_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        # SETTINGS MENU #
+
+        self.settings_lbl = QtWidgets.QLabel(self)
+        self.settings_lbl.resize(190, 30)
+        self.settings_lbl.move(30, 325)
+        self.settings_lbl.setFont(QtGui.QFont(FONT1, 25))
+        self.settings_lbl.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.language_lbl = QtWidgets.QLabel(self)
+        self.language_lbl.resize(190, 20)
+        self.language_lbl.move(14, 365)
+        self.language_lbl.setFont(QtGui.QFont(FONT1, 15))
+
+        self.language_combobox = QtWidgets.QComboBox(self)
+        self.language_combobox.resize(110, 25)
+        self.language_combobox.move(124, 363)
+        self.language_combobox.setFont(QtGui.QFont(FONT1, 15))
+        self.language_combobox.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        self.background_changeDelay_lbl = QtWidgets.QLabel(self)
+        self.background_changeDelay_lbl.resize(160, 40)
+        self.background_changeDelay_lbl.move(14, 395)
+        self.background_changeDelay_lbl.setFont(QtGui.QFont(FONT1, 15))
+
+        self.background_changeDelay_spinbox = QtWidgets.QSpinBox(self)
+        self.background_changeDelay_spinbox.resize(60, 25)
+        self.background_changeDelay_spinbox.move(174, 400)
+        self.background_changeDelay_spinbox.setFont(QtGui.QFont(FONT1, 15))
+        self.background_changeDelay_spinbox.setMaximum(999)
+        self.background_changeDelay_spinbox.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
+
+        self.autosaving_checkbox = QtWidgets.QCheckBox(self)
+        self.autosaving_checkbox.resize(220, 20)
+        self.autosaving_checkbox.move(14, 440)
+        self.autosaving_checkbox.setFont(QtGui.QFont(FONT1, 15))
+        self.autosaving_checkbox.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        self.discord_rpc_checkbox = QtWidgets.QCheckBox('Discord RPC', self)
+        self.discord_rpc_checkbox.resize(220, 20)
+        self.discord_rpc_checkbox.move(14, 465)
+        self.discord_rpc_checkbox.setFont(QtGui.QFont(FONT1, 15))
+        self.discord_rpc_checkbox.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        self.audio_settings_btn = QtWidgets.QPushButton(self)
+        self.audio_settings_btn.resize(220, 40)
+        self.audio_settings_btn.move(14, 500)
+        self.audio_settings_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.audio_settings_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        # AUDIO SETTINGS #
+
+        self.audio_settings_lbl = QtWidgets.QLabel(self)
+        self.audio_settings_lbl.resize(190, 30)
+        self.audio_settings_lbl.move(30, 350)
+        self.audio_settings_lbl.setFont(QtGui.QFont(FONT1, 25))
+        self.audio_settings_lbl.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.music_volume_lbl = QtWidgets.QLabel(self)
+        self.music_volume_lbl.resize(190, 30)
+        self.music_volume_lbl.move(20, 385)
+        self.music_volume_lbl.setFont(QtGui.QFont(FONT1, 13))
+
+        self.music_volume_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal, self)
+        self.music_volume_slider.resize(220, 15)
+        self.music_volume_slider.move(14, 410)
+        self.music_volume_slider.setRange(0, 100)
+        self.music_volume_slider.setStyleSheet('color: white')
+        self.music_volume_slider.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        self.sfx_volume_lbl = QtWidgets.QLabel(self)
+        self.sfx_volume_lbl.resize(190, 30)
+        self.sfx_volume_lbl.move(20, 425)
+        self.sfx_volume_lbl.setFont(QtGui.QFont(FONT1, 13))
+
+        self.sfx_volume_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal, self)
+        self.sfx_volume_slider.resize(220, 15)
+        self.sfx_volume_slider.move(14, 450)
+        self.sfx_volume_slider.setRange(0, 100)
+        self.sfx_volume_slider.setStyleSheet('color: white')
+        self.sfx_volume_slider.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        self.shuffle_music_checkbox = QtWidgets.QCheckBox(self)
+        self.shuffle_music_checkbox.move(14, 470)
+        self.shuffle_music_checkbox.setFont(QtGui.QFont(FONT1, 15))
+        self.shuffle_music_checkbox.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        self.settings_skip_track_btn = QtWidgets.QPushButton(self)
+        self.settings_skip_track_btn.resize(220, 30)
+        self.settings_skip_track_btn.move(14, 505)
+        self.settings_skip_track_btn.setFont(QtGui.QFont(FONT1, 14))
+        self.settings_skip_track_btn.setStyleSheet('QPushButton:hover:!pressed{border: 1px solid orange}')
+        self.settings_skip_track_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        self.back_settings_menu_btn = QtWidgets.QPushButton(self)
+        self.back_settings_menu_btn.resize(220, 40)
+        self.back_settings_menu_btn.move(14, 550)
+        self.back_settings_menu_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.back_settings_menu_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        # ABOUT-GAME MENU #
+
+        self.aboutGame_lbl = QtWidgets.QLabel(self)
+        self.aboutGame_lbl.move(14, 285)
+        self.aboutGame_lbl.setFont(QtGui.QFont(FONT1, 15))
+
+        # GAMEPLAY SCREEN #
+
+        self.gameplay_background = QtWidgets.QLabel(self)
         self.gameplay_background.move(0, -50)
 
-        self.gameplayInfo_background = QLabel(self)
-        self.gameplayInfo_background.setPixmap(self.load_img("blackScreen"))
-        self.gameplayInfo_background.resize(1280, 50)
-        self.gameplayInfo_background.move(0, 670)
+        self.gameplay_bar_background = QtWidgets.QLabel(self)
+        self.gameplay_bar_background.setStyleSheet('background-color: black')
+        self.gameplay_bar_background.resize(1280, 50)
+        self.gameplay_bar_background.move(0, 670)
 
-        self.score_lbl = QLabel(self)
-        self.score_lbl.resize(1255, 30)
-        self.score_lbl.move(14, 682)
-        self.score_lbl.setFont(QFont(self.font, 33))
+        self.score_lbl = QtWidgets.QLabel(self)
+        self.score_lbl.resize(1265, 35)
+        self.score_lbl.move(10, 680)
+        self.score_lbl.setFont(QtGui.QFont(FONT1, 33))
 
-        # Gameplay enemies
-        
-        self.enemy_1 = QPushButton(self)
-        self.enemy_1.resize(50, 50)
-        self.enemy_1.setIcon(QIcon(self.load_img("enemies", 0)))
-        self.enemy_1.setIconSize(QSize(50, 50))
-        self.enemy_1.setStyleSheet("border: 0px")
-        self.enemy_1.move(random.randint(20, 1200), random.randint(20, 620))
+        self.achievement_unlocked_notification = QtWidgets.QLabel(self)
+        self.achievement_unlocked_notification.setPixmap(load_pixmap(resources['MISC']['ACHIEVEMENT_UNLOCKED']))
+        self.achievement_unlocked_notification.resize(410, 80)
+        self.achievement_unlocked_notification.move(1280, 0)
 
-        self.enemy_2 = QPushButton(self)
-        self.enemy_2.resize(50, 50)
-        self.enemy_2.setIcon(QIcon(self.load_img("enemies", 1)))
-        self.enemy_2.setIconSize(QSize(50, 50))
-        self.enemy_2.setStyleSheet("border: 0px")
-        self.enemy_2.move(random.randint(20, 1200), random.randint(20, 620))
+        # GAMEPLAY ENEMIES #
 
-        self.enemy_3 = QPushButton(self)
-        self.enemy_3.resize(32, 90)
-        self.enemy_3.setIcon(QIcon(self.load_img("enemies", 2)))
-        self.enemy_3.setIconSize(QSize(32, 90))
-        self.enemy_3.setStyleSheet("border: 0px")
-        self.enemy_3.move(random.randint(20, 1200), random.randint(20, 550))
-        
-        # Pause-menu screen
-        
-        self.pause_background = QLabel(self)
-        self.pause_background.setPixmap(self.load_img("pause_background"))
-        self.pause_background.resize(1280, 720)
+        self.enemy0 = QtWidgets.QPushButton(self)
+        self.enemy0.resize(50, 50)
+        self.enemy0.setIcon(QtGui.QIcon(load_pixmap(resources['ENEMIES'][0])))
+        self.enemy0.setIconSize(QtCore.QSize(50, 50))
+        self.enemy0.setStyleSheet('border: 0px')
+        self.enemy0.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.pauseMenu_background = QLabel(self)
-        self.pauseMenu_background.setPixmap(self.load_img("blackScreen"))
-        self.pauseMenu_background.resize(250, 720)
-        self.pauseMenu_background.move(1030, 0)
+        self.enemy1 = QtWidgets.QPushButton(self)
+        self.enemy1.resize(50, 50)
+        self.enemy1.setIcon(QtGui.QIcon(load_pixmap(resources['ENEMIES'][1])))
+        self.enemy1.setIconSize(QtCore.QSize(50, 50))
+        self.enemy1.setStyleSheet('border: 0px')
+        self.enemy1.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.pauseMenu_title = QLabel(self)
-        self.pauseMenu_title.setPixmap(self.load_img("pause_title"))
-        self.pauseMenu_title.move(1030, 150)
+        self.enemy2 = QtWidgets.QPushButton(self)
+        self.enemy2.resize(32, 90)
+        self.enemy2.setIcon(QtGui.QIcon(load_pixmap(resources['ENEMIES'][2])))
+        self.enemy2.setIconSize(QtCore.QSize(32, 90))
+        self.enemy2.setStyleSheet('border: 0px')
+        self.enemy2.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.returnToGameplay_btn = QPushButton("Продолжить", self)
-        self.returnToGameplay_btn.resize(220, 40)
-        self.returnToGameplay_btn.move(1046, 350)
-        self.returnToGameplay_btn.setFont(QFont(self.font, 25))
-        self.returnToGameplay_btn.setFocusPolicy(Qt.NoFocus)
+        # PAUSE SCREEN #
 
-        self.statistics_btn = QPushButton("Статистика", self)
+        self.pause_screen_background = QtWidgets.QLabel(self)
+        self.pause_screen_background.setPixmap(load_pixmap(resources['BACKGROUNDS']['PAUSE_SCREEN']))
+
+        self.pause_menu_background = QtWidgets.QLabel(self)
+        self.pause_menu_background.setStyleSheet('background-color: black')
+        self.pause_menu_background.resize(250, 720)
+        self.pause_menu_background.move(1030, 0)
+
+        self.pause_menu_title = QtWidgets.QLabel(self)
+        self.pause_menu_title.setStyleSheet('color: red')
+        self.pause_menu_title.resize(220, 60)
+        self.pause_menu_title.move(1046, 170)
+        self.pause_menu_title.setFont(QtGui.QFont(FONT1, 55))
+        self.pause_menu_title.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.now_playing_track_bar = QtWidgets.QLabel(self)
+        self.now_playing_track_bar.setStyleSheet('background-color: black')
+        self.now_playing_track_bar.resize(1280, 50)
+        self.now_playing_track_bar.move(0, 0)
+
+        self.now_playing_track_lbl = QtWidgets.QLabel(self)
+        self.now_playing_track_lbl.resize(855, 40)
+        self.now_playing_track_lbl.move(175, 5)
+        self.now_playing_track_lbl.setFont(QtGui.QFont(FONT1, 20))
+
+        self.pauseScreen_skip_track_btn = QtWidgets.QPushButton(self)
+        self.pauseScreen_skip_track_btn.resize(150, 30)
+        self.pauseScreen_skip_track_btn.move(10, 10)
+        self.pauseScreen_skip_track_btn.setFont(QtGui.QFont(FONT1, 14))
+        self.pauseScreen_skip_track_btn.setStyleSheet('QPushButton:hover:!pressed{border: 1px solid orange}')
+        self.pauseScreen_skip_track_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        self.back_gameplay_btn = QtWidgets.QPushButton(self)
+        self.back_gameplay_btn.resize(220, 40)
+        self.back_gameplay_btn.move(1046, 350)
+        self.back_gameplay_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.back_gameplay_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        self.statistics_btn = QtWidgets.QPushButton(self)
         self.statistics_btn.resize(220, 40)
         self.statistics_btn.move(1046, 400)
-        self.statistics_btn.setFont(QFont(self.font, 25))
-        self.statistics_btn.setFocusPolicy(Qt.NoFocus)
-        self.statistics_btn.setEnabled(False)
+        self.statistics_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.statistics_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
-        self.exitToMainMenu_btn = QPushButton("Выйти", self)
-        self.exitToMainMenu_btn.resize(220, 40)
-        self.exitToMainMenu_btn.move(1046, 450)
-        self.exitToMainMenu_btn.setFont(QFont(self.font, 25))
-        self.exitToMainMenu_btn.setFocusPolicy(Qt.NoFocus)
+        self.achievements_btn = QtWidgets.QPushButton(self)
+        self.achievements_btn.resize(220, 40)
+        self.achievements_btn.move(1046, 450)
+        self.achievements_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.achievements_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        self.exit_gameplay_btn = QtWidgets.QPushButton(self)
+        self.exit_gameplay_btn.resize(220, 40)
+        self.exit_gameplay_btn.move(1046, 500)
+        self.exit_gameplay_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.exit_gameplay_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        # STATISTICS MENU #
+
+        self.statistics_listwidget = QtWidgets.QListWidget(self)
+        self.statistics_listwidget.resize(220, 240)
+        self.statistics_listwidget.move(1046, 300)
+        self.statistics_listwidget.setFont(QtGui.QFont(FONT1, 12))
+        self.statistics_listwidget.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.statistics_listwidget.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
+        self.statistics_listwidget.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        # ACHIEVEMENTS MENU #
+
+        self.achievements_lbl = QtWidgets.QLabel(self)
+        self.achievements_lbl.resize(220, 30)
+        self.achievements_lbl.move(1046, 270)
+        self.achievements_lbl.setFont(QtGui.QFont(FONT1, 19))
+        self.achievements_lbl.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.achievements_listwidget = QtWidgets.QListWidget(self)
+        self.achievements_listwidget.resize(220, 130)
+        self.achievements_listwidget.move(1046, 300)
+        self.achievements_listwidget.setFont(QtGui.QFont(FONT1, 11))
+        self.achievements_listwidget.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.achievements_listwidget.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
+        self.achievements_listwidget.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        LISTWIDGET_PALETTE = QtGui.QPalette()
+        LISTWIDGET_PALETTE.setColor(QtGui.QPalette.Highlight, QtCore.Qt.darkRed)
+        self.achievements_listwidget.setPalette(LISTWIDGET_PALETTE)
+
+        self.achievement_info_viewer = QtWidgets.QTextBrowser(self)
+        self.achievement_info_viewer.resize(220, 55)
+        self.achievement_info_viewer.move(1046, 435)
+        self.achievement_info_viewer.setFont(QtGui.QFont(FONT1, 11))
+        self.achievement_info_viewer.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.achievement_info_viewer.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
+        self.achievement_info_viewer.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        self.achievements_switch_btn = QtWidgets.QPushButton(self)
+        self.achievements_switch_btn.resize(220, 40)
+        self.achievements_switch_btn.move(1046, 500)
+        self.achievements_switch_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.achievements_switch_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        # BUTTON FOR BACK PAUSE MENU #
+        self.back_pauseScreen_menu_btn = QtWidgets.QPushButton(self)
+        self.back_pauseScreen_menu_btn.resize(220, 40)
+        self.back_pauseScreen_menu_btn.move(1046, 550)
+        self.back_pauseScreen_menu_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.back_pauseScreen_menu_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
+    # PYQT-EVENTS #
+
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Escape: # key for pause the game
+            if self.startScreen_status == False: # if player not in main-menu
+
+                if self.pause_status == False: # if pause screen already is not opened
+                    self.main.pause_gameplay_session()
+
+                else: # if already opened - pause screen will be closed
+                    self.main.continue_gameplay_session()
+
+    def mouseReleaseEvent(self, event): # counting of non-target clicks in gameplay
+        if (self.startScreen_status == False) and (self.pause_status == False):
+            self.main.events.lose_points()
+
+    def closeEvent(self, event):
+        if not self.startScreen_status:
+            self.main.overwrite_saves()

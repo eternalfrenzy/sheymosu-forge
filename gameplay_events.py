@@ -1,106 +1,150 @@
+import random
 
-from required import *
+from PyQt5 import QtCore, QtMultimedia
 
-"""Class for events in gameplay"""
-class gameplay_events():
+class GameplayEvents:
 
-    """Creating the timers for events and etc"""
-    def create_eventTimers(self):
-        self.enemyTimer_1 = QTimer()
-        self.enemyTimer_1.setTimerType(Qt.PreciseTimer)
-        self.enemyTimer_1.setInterval(100)
-        self.enemyTimer_1.timeout.connect(self.enemyTick_1)
-        self.enemyTime_1 = 0
-        
-        self.enemyTimer_2 = QTimer()
-        self.enemyTimer_2.setTimerType(Qt.PreciseTimer)
-        self.enemyTimer_2.setInterval(100)
-        self.enemyTimer_2.timeout.connect(self.enemyTick_2)
-        self.enemyTime_2 = 0
+    def __init__(self, main):
+        self.main = main
 
-        self.enemyTimer_3 = QTimer()
-        self.enemyTimer_3.setTimerType(Qt.PreciseTimer)
-        self.enemyTimer_3.setInterval(100)
-        self.enemyTimer_3.timeout.connect(self.enemyTick_3)
-        self.enemyTime_3 = 0
+        self.gameplay_timer = QtCore.QTimer()
+        self.gameplay_timer.setTimerType(QtCore.Qt.PreciseTimer)
+        self.gameplay_timer.setInterval(100)
+        self.gameplay_timer.timeout.connect(self.gameplayTick)
 
-        self.backgroundTimer = QTimer()
-        self.backgroundTimer.setTimerType(Qt.PreciseTimer)
-        self.backgroundTimer.setInterval(100)
-        self.backgroundTimer.timeout.connect(self.backgroundTimeOut)
+        self.autosaving_timer = QtCore.QTimer()
+        self.autosaving_timer.setTimerType(QtCore.Qt.PreciseTimer)
+        self.autosaving_timer.setInterval(self.main.settings['autosaving_delay'])
+        self.autosaving_timer.timeout.connect(self.main.overwrite_saves)
+
+        self.achievement_animation_timer = QtCore.QTimer()
+        self.achievement_animation_timer.setTimerType(QtCore.Qt.PreciseTimer)
+        self.achievement_animation_timer.setInterval(2000)
+        self.achievement_animation_timer.timeout.connect(self.hide_achievement_notification)
+
+        self.show_achievement_animation = QtCore.QPropertyAnimation(self.main.gui.achievement_unlocked_notification, b'geometry')
+        self.show_achievement_animation.setDuration(800)
+        self.show_achievement_animation.setStartValue(QtCore.QRect(1280, 0, 410, 80))
+        self.show_achievement_animation.setEndValue(QtCore.QRect(910, 0, 410, 80))
+        self.show_achievement_animation.setEasingCurve(QtCore.QEasingCurve.OutBack)
+        self.show_achievement_animation.finished.connect(self.achievement_animation_timer.start)
+
+        self.hide_achievement_animation = QtCore.QPropertyAnimation(self.main.gui.achievement_unlocked_notification, b'geometry')
+        self.hide_achievement_animation.setDuration(800)
+        self.hide_achievement_animation.setStartValue(QtCore.QRect(910, 0, 410, 80))
+        self.hide_achievement_animation.setEndValue(QtCore.QRect(1280, 0, 410, 80))
+        self.hide_achievement_animation.setEasingCurve(QtCore.QEasingCurve.InOutBack)
+
+        file_url = QtCore.QUrl.fromLocalFile('resources/sounds/enemy_click.mp3')
+        enemy_click_sound = QtMultimedia.QMediaContent(file_url)
+        self.main.audio.sfx_player.setMedia(enemy_click_sound)
+
         self.backgroundTime = 0
+        self.enemy0_time = 0
+        self.enemy1_time = 0
+        self.enemy2_time = 0
 
+        self.main.gui.enemy0.clicked.connect(self.enemy0_clicked)
+        self.main.gui.enemy1.clicked.connect(self.enemy1_clicked)
+        self.main.gui.enemy2.clicked.connect(self.enemy2_clicked)
 
-        self.gameplayTimeCounter = QTimer()
-        self.gameplayTimeCounter.setTimerType(Qt.PreciseTimer)
-        self.gameplayTimeCounter.setInterval(100)
-        self.gameplayTimeCounter.timeout.connect(self.gameplayTick)
+        self.main.logger.info('EVENTS CLASS INITIALISED')
 
-        
-        self.enemy_1.clicked.connect(self.enemyClicked_1)
-        self.enemy_2.clicked.connect(self.enemyClicked_2)
-        self.enemy_3.clicked.connect(self.enemyClicked_3)
-    
-    """Calls if targets is clicked"""
-    
-    def enemyClicked_1(self):
-        self.enemy1_clicked()
-        self.score += self.enemyScore_1
-        self.score_lbl.setText("Счёт: " + str(self.score))
-        self.enemy_1.move(random.randint(20, 1200), random.randint(20, 550))
+    def enemy0_clicked(self):
+        self.add_points(enemy_id=0)
 
-        self.enemyTime_1 = 0
-        self.enemyTimer_1.start()
+        self.update_stats_for_enemy_click(enemy_id=0)
+        self.main.gui.enemy0.move(random.randint(20, 1200), random.randint(20, 550))
 
-    def enemyClicked_2(self):
-        self.enemy2_clicked()
-        self.score += self.enemyScore_2
-        self.score_lbl.setText("Счёт: " + str(self.score))
-        self.enemy_2.move(random.randint(20, 1200), random.randint(20, 550))
+        self.enemy0_time = 0
 
-        self.enemyTime_2 = 0
-        self.enemyTimer_2.start()
+        self.main.audio.sfx_player.play()
 
-    def enemyClicked_3(self):
-        self.enemy3_clicked()
-        self.score += self.enemyScore_3
-        self.score_lbl.setText("Счёт: " + str(self.score))
-        self.enemy_3.move(random.randint(20, 1200), random.randint(20, 550))
+    def enemy1_clicked(self):
+        self.add_points(enemy_id=1)
 
-        self.enemyTime_3 = 0
-        self.enemyTimer_3.start()
+        self.update_stats_for_enemy_click(enemy_id=1)
+        self.main.gui.enemy1.move(random.randint(20, 1200), random.randint(20, 550))
 
-    """Counting the time for time-outs
-    of enemies and their movements"""
+        self.enemy1_time = 0
 
-    def enemyTick_1(self):
-        self.enemyTime_1 = round(self.enemyTime_1 + 0.1, 1) # Rounding the time
-        if self.enemyTime_1 >= self.enemyTimeout_1:
-            self.enemy_1.move(random.randint(20, 1200), random.randint(20, 550))
-            self.enemyTime_1 = 0
+        self.main.audio.sfx_player.play()
 
-    def enemyTick_2(self):
-        self.enemyTime_2 = round(self.enemyTime_2 + 0.1, 1)
-        if self.enemyTime_2 >= self.enemyTimeout_2:
-            self.enemy_2.move(random.randint(20, 1200), random.randint(20, 550))
-            self.enemyTime_2 = 0
+    def enemy2_clicked(self):
+        self.add_points(enemy_id=2)
 
-    def enemyTick_3(self):
-        self.enemyTime_3 = round(self.enemyTime_3 + 0.1, 1)
-        if self.enemyTime_3 >= self.enemyTimeout_3:
-            self.enemy_3.move(random.randint(20, 1200), random.randint(20, 550))
-            self.enemyTime_3 = 0
+        self.update_stats_for_enemy_click(enemy_id=2)
+        self.main.gui.enemy2.move(random.randint(20, 1200), random.randint(20, 550))
 
-    """Counting the time for
-    time-out of background"""
-    def backgroundTimeOut(self):
+        self.enemy2_time = 0
+
+        self.main.audio.sfx_player.play()
+
+    def gameplayTick(self):
+        updated_timePlayed = round(self.main.current_save['statistics']['time_played'] + 0.1, 1)
+        self.main.current_save['statistics']['time_played'] = updated_timePlayed
         self.backgroundTime = round(self.backgroundTime + 0.1, 1)
-        if self.backgroundTime >= 2:
-            self.gameplay_background.setPixmap(
-                self.load_img("backgrounds", random.randint(0,16))
-            )
+        self.enemy0_time = round(self.enemy0_time + 0.1, 1)
+        self.enemy1_time = round(self.enemy1_time + 0.1, 1)
+        self.enemy2_time = round(self.enemy2_time + 0.1, 1)
+
+        self.main.achievements_manager.update_progress('time', 0.1)
+        self.main.achievements_manager.update_progress('time_since_miss_click', 0.1)
+        self.main.achievements_manager.update_progress('time_since_enemy_click', 0.1)
+
+        if self.backgroundTime >= self.main.settings['background_change_delay']:
+            self.main.gui.set_random_gameplayBackground()
             self.backgroundTime = 0
 
-    """Counting the time in gameplay"""
-    def gameplayTick(self):
-        self.time = round(self.time + 0.1, 1)
+        if self.enemy0_time >= self.main.current_difficulty['ENEMIES_TIMEOUTS'][0]:
+            self.main.gui.enemy0.move(random.randint(20, 1200), random.randint(20, 550))
+            self.enemy0_time = 0
+
+        if self.enemy1_time >= self.main.current_difficulty['ENEMIES_TIMEOUTS'][1]:
+            self.main.gui.enemy1.move(random.randint(20, 1200), random.randint(20, 550))
+            self.enemy1_time = 0
+
+        if self.enemy2_time >= self.main.current_difficulty['ENEMIES_TIMEOUTS'][2]:
+            self.main.gui.enemy2.move(random.randint(20, 1200), random.randint(20, 550))
+            self.enemy2_time = 0
+
+    def add_points(self, enemy_id):
+        added_points = self.main.current_difficulty['ENEMIES_SCORES'][enemy_id]
+        self.main.current_save['score'] += added_points
+        self.main.current_save['statistics']['earned_points'] += added_points
+        self.main.achievements_manager.update_progress('earned_points', added_points)
+
+        self.update_score()
+
+    def lose_points(self):
+        lost_points = self.main.current_difficulty['LOSING_POINTS']
+        self.main.current_save['statistics']['lost_points'] += lost_points
+        self.main.current_save['statistics']['total_clicks'] += 1
+        self.main.current_save['statistics']['miss_clicks'] += 1
+        self.main.current_save['score'] -= lost_points
+        self.main.achievements_manager.update_progress('lost_points', lost_points)
+        self.main.achievements_manager.update_progress('clicks_count', lost_points)
+        self.main.achievements_manager.update_progress('miss_clicks', lost_points)
+        self.main.achievements_manager.update_progress('time_since_miss_click', True)
+
+        self.update_score()
+
+    def update_score(self):
+        score_name = self.main.lang_manager.get_string('Other', 'Score')
+        self.main.gui.score_lbl.setText('%s: %s' % (score_name, self.main.current_save['score']))
+
+    def update_stats_for_enemy_click(self, enemy_id):
+        self.main.current_save['statistics']['enemies_clicks'][enemy_id] += 1
+        self.main.current_save['statistics']['total_clicks'] += 1
+        self.main.achievements_manager.update_progress('enemies_clicks', 1, list_index=enemy_id)
+        self.main.achievements_manager.update_progress('clicked_enemies', 1)
+        self.main.achievements_manager.update_progress('time_since_enemy_click', True)
+
+    def achievement_unlocked(self):
+        self.show_achievement_animation.start()
+        self.main.audio.notifications_player.play()
+        self.main.logger.info('GAMEPLAY: ACHIEVEMENT UNLOCKED')
+
+    def hide_achievement_notification(self):
+        self.achievement_animation_timer.stop()
+        self.hide_achievement_animation.start()
