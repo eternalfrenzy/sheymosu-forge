@@ -1,3 +1,3 @@
-![Version](https://img.shields.io/badge/Version-Pre--Beta%200.5.1-important) ![GUI](https://img.shields.io/badge/GUI-PyQt5-brightgreen)
-
-# The best game on PyQt5 ever.
+# The best game on PyQT ever, now with mod support!
+Sheymosu Forge (registered trademark by the laws of United States of America) introduses lua scripting api. Currently WIP.
+Will update readme when the barebones are ready.
