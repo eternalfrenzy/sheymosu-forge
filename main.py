@@ -1,8 +1,8 @@
 """THE BEST PYQT-GAME EVER"""
 
 __title__   = 'SheymOsu'
-__author__  = 'RinkLinky'
-__version__ = 'Pre-Beta 0.5.1'
+__author__  = 'RinkLinky, eternalfrenzy'
+__version__ = 'Pre-Beta 0.5.1 (Forge 0.0.1)'
 
 import pickle
 import json
@@ -19,6 +19,7 @@ from gameplay_events import GameplayEvents
 from audio_manager import GameAudio
 from lang_manager import LanguageManager
 from achievements_manager import AchievementsManager
+from mod_manager import ModManager
 from discord_rpc import DiscordRPCIntegration
 
 DEFAULT_SETTINGS = {
@@ -152,12 +153,18 @@ class Main:
         self.events = GameplayEvents(self)
         self.lang_manager = LanguageManager(self)
         self.achievements_manager = AchievementsManager(self)
+        self.mod_manager = ModManager(self)
         self.discord_rpc = DiscordRPCIntegration(self)
 
         self.apply_settings()
 
         self.saves = read_saves()
         self.gui.fill_with_saves()
+
+        self.mod_manager.get_modlist()
+        self.mod_manager.run_mods()
+
+        self.gui.fill_with_mods()
 
         self.gui.gameVersion_lbl.setText(__version__)
         self.gui.aboutGame_lbl.setText(ABOUT_GAME_STRING)
@@ -175,6 +182,7 @@ class Main:
         self.gui.newGame_btn.clicked.connect(self.gui.prepare_save_creating)
         self.gui.continueGame_btn.clicked.connect(self.gui.open_continueGame_menu)
         self.gui.settings_btn.clicked.connect(self.gui.open_settings_menu)
+        self.gui.mods_btn.clicked.connect(self.gui.open_mods_menu)
         self.gui.quitGame_btn.clicked.connect(app.quit)
         self.gui.aboutGame_btn.clicked.connect(self.gui.open_aboutGame_menu)
         self.gui.back_startScreen_menu_btn.clicked.connect(self.gui.back_startScreen_menu)
@@ -203,6 +211,9 @@ class Main:
         self.gui.back_settings_menu_btn.clicked.connect(self.gui.close_audio_settings_menu)
         self.gui.shuffle_music_checkbox.stateChanged.connect(self.gui.switch_shuffle_music)
         self.gui.settings_skip_track_btn.clicked.connect(self.audio.skip_track)
+        # MODS MENU #
+        self.gui.back_mods_menu_btn.clicked.connect(self.gui.close_mods_menu)
+        self.gui.toggle_mod_btn.clicked.connect(self.gui.toggle_mod)
         # PAUSE MENU #
         self.gui.back_gameplay_btn.clicked.connect(self.continue_gameplay_session)
         self.gui.statistics_btn.clicked.connect(self.gui.open_statistics_menu)

@@ -122,6 +122,10 @@ class LanguageManager:
         self.main.gui.deleteSave_warning_lbl.setText(self.get_string('Gui', 'DeleteSaveWarning'))
         self.main.gui.confirm_deleteSave_btn.setText(self.get_string('Gui', 'DeleteSave'))
 
+        self.main.gui.back_mods_menu_btn.setText(self.get_string('Gui', 'Back'))
+        self.main.gui.mods_btn.setText(self.get_string('Gui', 'Mods'))
+        self.main.gui.toggle_mod_btn.setText(self.get_string("Gui", "Toggle"))
+
         self.main.gui.cancel_btn.setText(self.get_string('Gui', 'Cancel'))
         self.main.gui.settings_lbl.setText(self.get_string('Other', 'Settings'))
         self.main.gui.language_lbl.setText(self.get_string('Other', 'Language'))

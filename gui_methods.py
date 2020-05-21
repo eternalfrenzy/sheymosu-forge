@@ -45,6 +45,26 @@ class GuiMethods(Gui):
         self.hide_startScreen_menu()
         self.show_settings_menu()
 
+    def open_mods_menu(self):
+        """Shows the mod list and mod utilities"""
+        self.hide_startScreen_menu()
+        self.show_mods_menu()
+
+    def close_mods_menu(self):
+        """Closes the mod list and mod utilities"""
+        self.hide_mods_menu()
+        self.show_startScreen_menu()
+
+    def show_mods_menu(self):
+        self.back_mods_menu_btn.show()
+        self.toggle_mod_btn.show()
+        self.modsList.show()
+
+    def hide_mods_menu(self):
+        self.back_mods_menu_btn.hide()
+        self.toggle_mod_btn.hide()
+        self.modsList.hide()
+
     def open_audio_settings_menu(self):
         """Show audio settings menu and hide standard settings menu"""
         self.hide_settings_menu()
@@ -54,6 +74,15 @@ class GuiMethods(Gui):
         """Show audio settings menu and hide standard settings menu"""
         self.hide_audio_settings_menu()
         self.show_settings_menu()
+
+    def toggle_mod(self):
+        """Toggles a selected mod on or off"""
+        selected = self.modsList.currentRow()
+        if selected != -1:
+            mod = self.main.mod_manager.mods[selected]
+            if not mod.is_invalid:
+                mod.enable() if not mod.enabled else mod.disable()
+                self.fill_with_mods()
 
     def change_save(self):
         """Show change-save menu for selected save"""
@@ -174,6 +203,7 @@ class GuiMethods(Gui):
 
         self.main.lang_manager.apply_language()
         self.fill_with_saves()
+        self.fill_with_mods()
 
     def change_background_changeDelay(self, delay):
         """Save the changed 'background_change_delay' in game settings"""
@@ -249,6 +279,22 @@ class GuiMethods(Gui):
             self.continueGame_btn.setEnabled(False) # if saves not found - continue-menu will be disabled
         else:
             self.continueGame_btn.setEnabled(True)
+
+    def fill_with_mods(self):
+        """Fill the QListWidget with mod list"""
+        self.modsList.clear()
+
+        for mod in self.main.mod_manager.mods:
+
+            if mod.is_invalid:
+                state = self.main.lang_manager.get_string("Gui", "Invalid")
+            else:
+                state = self.main.lang_manager.get_string("Gui", "Enabled") if mod.enabled else self.main.lang_manager.get_string("Gui", "Disabled")
+
+            version_localize = self.main.lang_manager.get_string("Gui", "Version")
+
+            item = "%s - %s\n%s %s" % (mod.name, state, version_localize, mod.version)
+            self.modsList.addItem(item)
 
     def fill_with_statistics(self):
         """Fill the QListWidget with player statistics"""
@@ -407,6 +453,7 @@ class GuiMethods(Gui):
         self.newGame_btn.show()
         self.continueGame_btn.show()
         self.settings_btn.show()
+        self.mods_btn.show()
         self.quitGame_btn.show()
         self.aboutGame_btn.show()
 
@@ -415,6 +462,7 @@ class GuiMethods(Gui):
         self.newGame_btn.hide()
         self.continueGame_btn.hide()
         self.settings_btn.hide()
+        self.mods_btn.hide()
         self.quitGame_btn.hide()
         self.aboutGame_btn.hide()
 

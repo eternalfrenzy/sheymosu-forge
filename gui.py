@@ -54,8 +54,9 @@ class Gui(QtWidgets.QWidget):
         self.startScreen_menu_logo.move(0, 125)
 
         self.gameVersion_lbl = QtWidgets.QLabel(self)
-        self.gameVersion_lbl.resize(225, 20)
-        self.gameVersion_lbl.move(14, 685)
+        #self.gameVersion_lbl.resize(225, 20) # Clips the text weirdly
+        self.gameVersion_lbl.move(14, 655)
+        self.gameVersion_lbl.setWordWrap(True)
         self.gameVersion_lbl.setFont(QtGui.QFont(FONT1, 20))
 
         self.newGame_btn = QtWidgets.QPushButton(self)
@@ -76,9 +77,15 @@ class Gui(QtWidgets.QWidget):
         self.settings_btn.setFont(QtGui.QFont(FONT1, 25))
         self.settings_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
+        self.mods_btn = QtWidgets.QPushButton(self)
+        self.mods_btn.resize(220, 40)
+        self.mods_btn.move(14, 500)
+        self.mods_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.mods_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
         self.quitGame_btn = QtWidgets.QPushButton(self)
         self.quitGame_btn.resize(220, 40)
-        self.quitGame_btn.move(14, 500)
+        self.quitGame_btn.move(14, 550)
         self.quitGame_btn.setFont(QtGui.QFont(FONT1, 25))
         self.quitGame_btn.setFocusPolicy(QtCore.Qt.NoFocus)
 
@@ -294,6 +301,29 @@ class Gui(QtWidgets.QWidget):
         self.back_settings_menu_btn.move(14, 550)
         self.back_settings_menu_btn.setFont(QtGui.QFont(FONT1, 25))
         self.back_settings_menu_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+
+        # MODS MENU #
+
+        self.modsList = QtWidgets.QListWidget(self)
+        self.modsList.resize(220, 130)
+        self.modsList.move(14, 350)
+        self.modsList.setFont(QtGui.QFont(FONT1, 15))
+        self.modsList.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.modsList.hide()
+
+        self.toggle_mod_btn = QtWidgets.QPushButton(self)
+        self.toggle_mod_btn.resize(220, 40)
+        self.toggle_mod_btn.move(14, 500)
+        self.toggle_mod_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.toggle_mod_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.toggle_mod_btn.hide()
+
+        self.back_mods_menu_btn = QtWidgets.QPushButton(self)
+        self.back_mods_menu_btn.resize(220, 40)
+        self.back_mods_menu_btn.move(14, 550)
+        self.back_mods_menu_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.back_mods_menu_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.back_mods_menu_btn.hide()
 
         # ABOUT-GAME MENU #
 
