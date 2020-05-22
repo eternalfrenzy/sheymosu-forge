@@ -22,7 +22,7 @@ end
 function onEnable()
     print("enable")
     hooks.add("onAddPoints", MOD_DATA["name"].."onAddPoints", onAddPointsHandler) -- aka event handlers
-    enemy.add("clown", 30, "myenemy.jpg", 2) -- The actual path to the texture is: <game executable>/userdata/resources/myenemy.jpg.
+    enemy.add("clown", 30, "myenemy.jpg", 2) -- The actual path to the texture is: <game executable>/userdata/mods/resources/myenemy.jpg.
     enemy.add("frenzy", 100, "frenzy.jpg", 0.5) -- Fast AF boiiiiiiiiiiii
 end
 MOD_DATA["onEnable"] = onEnable -- Let the mod know. Both onEnable and onDisable fields are necessary.
