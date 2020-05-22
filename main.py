@@ -18,8 +18,10 @@ from gui_methods import GuiMethods
 from gameplay_events import GameplayEvents
 from audio_manager import GameAudio
 from lang_manager import LanguageManager
+from hookslib import HooksLib
 from achievements_manager import AchievementsManager
 from mod_manager import ModManager
+from enemylib import EnemyLib
 from discord_rpc import DiscordRPCIntegration
 
 DEFAULT_SETTINGS = {
@@ -80,7 +82,6 @@ Author:
 %s
 
 Support:
-eternalfrenzy
 Garen
 
 Source code on GitHub.''' % (__version__, __author__)
@@ -149,8 +150,10 @@ class Main:
         self.logger = logger
 
         self.gui = GuiMethods(self)
+        self.enemylib = EnemyLib(self)
         self.audio = GameAudio(self)
         self.events = GameplayEvents(self)
+        self.hookslib = HooksLib(self)
         self.lang_manager = LanguageManager(self)
         self.achievements_manager = AchievementsManager(self)
         self.mod_manager = ModManager(self)
@@ -164,6 +167,11 @@ class Main:
         self.mod_manager.get_modlist()
         self.mod_manager.run_mods()
 
+        self.hookslib.call("onLoad")
+
+        self.gui.setup_custom_enemies()
+        self.events.setup_custom_enemy_clicks()
+        
         self.gui.fill_with_mods()
 
         self.gui.gameVersion_lbl.setText(__version__)
@@ -213,6 +221,7 @@ class Main:
         self.gui.settings_skip_track_btn.clicked.connect(self.audio.skip_track)
         # MODS MENU #
         self.gui.back_mods_menu_btn.clicked.connect(self.gui.close_mods_menu)
+        self.gui.modsList.itemClicked.connect(self.gui.mod_select)
         self.gui.toggle_mod_btn.clicked.connect(self.gui.toggle_mod)
         # PAUSE MENU #
         self.gui.back_gameplay_btn.clicked.connect(self.continue_gameplay_session)

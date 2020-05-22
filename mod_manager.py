@@ -1,6 +1,6 @@
 import os
 
-from base_mod import *
+from base_mod import BaseMod
 
 MODS_DIR = "userdata/mods"
 

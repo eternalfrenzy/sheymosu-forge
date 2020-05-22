@@ -1,9 +1,9 @@
 import random
 import datetime
 
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtGui, QtWidgets, QtCore
 
-from gui import Gui
+from gui import Gui, load_pixmap
 
 class GuiMethods(Gui):
 
@@ -19,6 +19,23 @@ class GuiMethods(Gui):
         self.selected_achievements_type_view = 0
 
         self.main.logger.info('GUI METHODS INITIALISED')
+
+    def setup_custom_enemies(self):
+        for enemy in self.main.enemylib.enemies:
+            enemy.button = QtWidgets.QPushButton(self)
+            enemy.button.resize(50, 50)
+            enemy.button.move(230, 230)
+            try:
+                fi = open(enemy.texture, "rb")
+                texturedata = fi.read()
+                fi.close()
+                enemy.button.setIcon(QtGui.QIcon(load_pixmap(texturedata)))
+            except Exception as e:
+                pass
+            enemy.button.setIconSize(QtCore.QSize(50, 50))
+            enemy.button.setStyleSheet('border: 0px')
+            enemy.button.setFocusPolicy(QtCore.Qt.NoFocus)
+            enemy.button.hide()
 
     def prepare_save_creating(self):
         """Prepare new-game menu for creating the new save"""
@@ -58,11 +75,13 @@ class GuiMethods(Gui):
     def show_mods_menu(self):
         self.back_mods_menu_btn.show()
         self.toggle_mod_btn.show()
+        self.mod_desc.show()
         self.modsList.show()
 
     def hide_mods_menu(self):
         self.back_mods_menu_btn.hide()
         self.toggle_mod_btn.hide()
+        self.mod_desc.hide()
         self.modsList.hide()
 
     def open_audio_settings_menu(self):
@@ -295,6 +314,17 @@ class GuiMethods(Gui):
 
             item = "%s - %s\n%s %s" % (mod.name, state, version_localize, mod.version)
             self.modsList.addItem(item)
+
+    def mod_select(self):
+        """Handle mod selection in the list"""
+        selected = self.modsList.currentRow()
+        if selected != -1:
+            mod = self.main.mod_manager.mods[selected]
+            if mod:
+                self.main.gui.mod_desc.setText(mod.desc) if not mod.is_invalid else self.main.gui.mod_desc.setText(self.main.lang_manager.get_string("Gui", "Invalid")+": "+str(mod.exception))
+                # Retarded way of updating the aligment, ikr
+                self.main.gui.mod_desc.hide() 
+                self.main.gui.mod_desc.show()
 
     def fill_with_statistics(self):
         """Fill the QListWidget with player statistics"""
@@ -598,6 +628,9 @@ class GuiMethods(Gui):
         self.enemy1.show()
         self.enemy2.show()
 
+        for enemy in self.main.enemylib.enemies:
+            enemy.button.show()
+
         self.main.discord_rpc.update_for_gameplayScreen()
 
     def close_gameplay_screen(self):
@@ -607,6 +640,9 @@ class GuiMethods(Gui):
         self.enemy0.hide()
         self.enemy1.hide()
         self.enemy2.hide()
+
+        for enemy in self.main.enemylib.enemies:
+            enemy.button.hide()
 
     def show_gameplay_screen(self):
         """Show gameplay GUI only"""

@@ -1,6 +1,7 @@
 import random
 
 from PyQt5 import QtCore, QtMultimedia
+from enemylib import DEFAULT_ENEMY_MAX_ID
 
 class GameplayEvents:
 
@@ -50,6 +51,10 @@ class GameplayEvents:
 
         self.main.logger.info('EVENTS CLASS INITIALISED')
 
+    def setup_custom_enemy_clicks(self):
+        for enemy in self.main.enemylib.enemies:
+            enemy.button.clicked.connect(enemy.clickevent)
+
     def enemy0_clicked(self):
         self.add_points(enemy_id=0)
 
@@ -88,6 +93,9 @@ class GameplayEvents:
         self.enemy1_time = round(self.enemy1_time + 0.1, 1)
         self.enemy2_time = round(self.enemy2_time + 0.1, 1)
 
+        for enemy in self.main.enemylib.enemies:
+            enemy.time = round(enemy.time + 0.1, 1)
+
         self.main.achievements_manager.update_progress('time', 0.1)
         self.main.achievements_manager.update_progress('time_since_miss_click', 0.1)
         self.main.achievements_manager.update_progress('time_since_enemy_click', 0.1)
@@ -108,8 +116,29 @@ class GameplayEvents:
             self.main.gui.enemy2.move(random.randint(20, 1200), random.randint(20, 550))
             self.enemy2_time = 0
 
+        for enemy in self.main.enemylib.enemies:
+            if enemy.time >= enemy.timeout:
+                enemy.button.move(random.randint(20, 1200), random.randint(20, 550))
+                enemy.time = 0
+
+        self.main.hookslib.call("onTick")
+
     def add_points(self, enemy_id):
-        added_points = self.main.current_difficulty['ENEMIES_SCORES'][enemy_id]
+        if enemy_id <= DEFAULT_ENEMY_MAX_ID:
+            added_points = self.main.current_difficulty['ENEMIES_SCORES'][enemy_id]
+        else:
+            for enemy in self.main.enemylib.enemies:
+                if enemy.id == enemy_id:
+                    added_points = enemy.pts
+                    break
+
+        if not added_points:
+            return
+
+        newpts = self.main.hookslib.call("onAddPoints", enemy_id, added_points)
+        if newpts:
+            added_points = newpts
+
         self.main.current_save['score'] += added_points
         self.main.current_save['statistics']['earned_points'] += added_points
         self.main.achievements_manager.update_progress('earned_points', added_points)
@@ -118,6 +147,11 @@ class GameplayEvents:
 
     def lose_points(self):
         lost_points = self.main.current_difficulty['LOSING_POINTS']
+
+        newpts = self.main.hookslib.call("onLosePoints", lost_points)
+        if newpts:
+            lost_points = newpts
+
         self.main.current_save['statistics']['lost_points'] += lost_points
         self.main.current_save['statistics']['total_clicks'] += 1
         self.main.current_save['statistics']['miss_clicks'] += 1
@@ -134,9 +168,11 @@ class GameplayEvents:
         self.main.gui.score_lbl.setText('%s: %s' % (score_name, self.main.current_save['score']))
 
     def update_stats_for_enemy_click(self, enemy_id):
-        self.main.current_save['statistics']['enemies_clicks'][enemy_id] += 1
+        if enemy_id <= DEFAULT_ENEMY_MAX_ID:
+            self.main.current_save['statistics']['enemies_clicks'][enemy_id] += 1
         self.main.current_save['statistics']['total_clicks'] += 1
-        self.main.achievements_manager.update_progress('enemies_clicks', 1, list_index=enemy_id)
+        if enemy_id <= DEFAULT_ENEMY_MAX_ID:
+            self.main.achievements_manager.update_progress('enemies_clicks', 1, list_index=enemy_id)
         self.main.achievements_manager.update_progress('clicked_enemies', 1)
         self.main.achievements_manager.update_progress('time_since_enemy_click', True)
 

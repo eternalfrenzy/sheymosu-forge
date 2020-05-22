@@ -124,6 +124,7 @@ class LanguageManager:
 
         self.main.gui.back_mods_menu_btn.setText(self.get_string('Gui', 'Back'))
         self.main.gui.mods_btn.setText(self.get_string('Gui', 'Mods'))
+        self.main.gui.mod_desc.setText(self.get_string("Gui", "ModHint"))
         self.main.gui.toggle_mod_btn.setText(self.get_string("Gui", "Toggle"))
 
         self.main.gui.cancel_btn.setText(self.get_string('Gui', 'Cancel'))

@@ -1,5 +1,7 @@
 import lupa
 from lupa import LuaRuntime
+from hookslib import _HooksLibInterface
+from enemylib import _EnemyLibInterface
 
 class BaseMod:
 
@@ -14,7 +16,26 @@ class BaseMod:
         self.enabled = False
         self.exception = None
 
+    def add_libs(self):
+        hooks = _HooksLibInterface()
+        hooks.add = self.main.hookslib.add
+        hooks.remove = self.main.hookslib.remove
+        hooks.get = self.main.hookslib.get
+        hooks.call = self.main.hookslib.call
+
+        enemy = _EnemyLibInterface()
+        enemy.add = self.main.enemylib.add
+        enemy.getById = self.main.enemylib.getById
+        enemy.getByName = self.main.enemylib.getByName
+        enemy.removeById = self.main.enemylib.removeById
+        enemy.removeByName = self.main.enemylib.removeByName
+
+        self.lua_state.globals().enemy = enemy
+        self.lua_state.globals().hooks = hooks
+
     def run_code(self):
+        self.add_libs()
+
         try:
             self.lua_state.execute(self.code)
         except Exception as e:
@@ -39,13 +60,12 @@ class BaseMod:
         if not self.lua_state.globals().MOD_DATA["name"]:
             self.is_invalid = True
             self.exception = "'name' field in MOD_DATA is abscent or nil."
+        else:
+            self.name = self.lua_state.globals().MOD_DATA["name"]
 
         if self.is_invalid:
             self.enabled = False
-            return
 
-        self.name = self.lua_state.globals().MOD_DATA["name"]
-        
         if self.lua_state.globals().MOD_DATA["description"]:
             self.desc = self.lua_state.globals().MOD_DATA["description"]
 
@@ -56,12 +76,20 @@ class BaseMod:
         if self.is_invalid or self.enabled:
             return
 
-        self.lua_state.globals().MOD_DATA["onEnable"]()
+        try:
+            self.lua_state.globals().MOD_DATA["onEnable"]()
+        except Exception as e:
+            pass
+        
         self.enabled = True
 
     def disable(self):
         if self.is_invalid or not self.enabled:
             return
 
-        self.lua_state.globals().MOD_DATA["onDisable"]()
+        try:
+            self.lua_state.globals().MOD_DATA["onDisable"]()
+        except Exception as e:
+            pass
+
         self.enabled = False

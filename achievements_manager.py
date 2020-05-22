@@ -37,6 +37,7 @@ ACHIEVEMENT EXAMPLE:
 
 import json
 import os
+import copy
 
 from PyQt5 import QtCore, QtMultimedia
 
@@ -100,6 +101,7 @@ class AchievementsManager:
             if len(completed_goals) == len(achievement['goals']) + len(achievement['total_goals']):
                 self.main.current_save['completed_achievements'].append(achievement['id'])
                 self.main.events.achievement_unlocked()
+                self.main.hookslib.call("onAchievementUnlocked", copy.copy(achievement))
 
     def update_progress(self, goal, added_value, list_index=None):
         for achievement in self.achievements:

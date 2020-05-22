@@ -304,6 +304,13 @@ class Gui(QtWidgets.QWidget):
 
         # MODS MENU #
 
+        self.back_mods_menu_btn = QtWidgets.QPushButton(self)
+        self.back_mods_menu_btn.resize(220, 40)
+        self.back_mods_menu_btn.move(14, 300)
+        self.back_mods_menu_btn.setFont(QtGui.QFont(FONT1, 25))
+        self.back_mods_menu_btn.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.back_mods_menu_btn.hide()
+
         self.modsList = QtWidgets.QListWidget(self)
         self.modsList.resize(220, 130)
         self.modsList.move(14, 350)
@@ -317,13 +324,12 @@ class Gui(QtWidgets.QWidget):
         self.toggle_mod_btn.setFont(QtGui.QFont(FONT1, 25))
         self.toggle_mod_btn.setFocusPolicy(QtCore.Qt.NoFocus)
         self.toggle_mod_btn.hide()
-
-        self.back_mods_menu_btn = QtWidgets.QPushButton(self)
-        self.back_mods_menu_btn.resize(220, 40)
-        self.back_mods_menu_btn.move(14, 550)
-        self.back_mods_menu_btn.setFont(QtGui.QFont(FONT1, 25))
-        self.back_mods_menu_btn.setFocusPolicy(QtCore.Qt.NoFocus)
-        self.back_mods_menu_btn.hide()
+        
+        self.mod_desc = QtWidgets.QLabel(self)
+        self.mod_desc.move(14, 550)
+        self.mod_desc.setWordWrap(True)
+        self.mod_desc.setFont(QtGui.QFont(FONT1, 15))
+        self.mod_desc.hide()        
 
         # ABOUT-GAME MENU #
 
